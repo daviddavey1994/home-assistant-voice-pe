@@ -18,8 +18,8 @@ static const char *const TAG = "voice_assistant";
 
 // TODO: Make stopping the microphone a configurable option, it's hardcoded removed currently
 
-static const size_t SAMPLE_RATE_HZ = 16000;
-static const size_t INPUT_BUFFER_SIZE = 32 * SAMPLE_RATE_HZ / 1000;  // 32ms * 16kHz / 1000ms
+static const size_t SAMPLE_RATE_HZ = 48000;
+static const size_t INPUT_BUFFER_SIZE = 150 * SAMPLE_RATE_HZ / 1000;  // 32ms * 16kHz / 1000ms
 static const size_t BUFFER_SIZE = 512 * SAMPLE_RATE_HZ / 1000;
 static const size_t SEND_BUFFER_SIZE = INPUT_BUFFER_SIZE * sizeof(int16_t);
 static const size_t RECEIVE_SIZE = 1024;
