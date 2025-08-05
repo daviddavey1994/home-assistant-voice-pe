@@ -38,6 +38,122 @@ esphome:
             - lambda: id(init_in_progress) = false;
             - script.execute: control_leds
 
+script:
+  - id: control_leds_voice_assistant_listening_for_command_phase
+    then:
+      - light.turn_on:
+          id: voice_assistant_leds
+          brightness: 35%
+          red: 0%
+          green: 0%
+          blue: 100%
+          effect: "Listening For Command"
+
+  - id: control_leds_voice_assistant_thinking_phase
+    then:
+      - light.turn_on:
+          id: voice_assistant_leds
+          brightness: 50%
+          red: 0%
+          green: 50%
+          blue: 0%
+          effect: "Thinking"
+
+  - id: control_leds_voice_assistant_replying_phase
+    then:
+      - light.turn_on:
+          id: voice_assistant_leds
+          brightness: 40%
+          red: 0%
+          green: 100%
+          blue: 0%
+          effect: "Replying"
+
+  - id: control_leds_voice_assistant_idle_phase
+    then:
+      - light.turn_off: voice_assistant_leds
+
+voice_assistant:
+  id: va
+  microphone:
+    microphone: i2s_mics
+    channels: 0
+  media_player: external_media_player
+  micro_wake_word: mww
+  use_wake_word: false
+  noise_suppression_level: 1
+  auto_gain: 0 dbfs
+  volume_multiplier: 1
+  on_client_connected:
+    - lambda: id(init_in_progress) = false;
+    - micro_wake_word.start:
+    - lambda: id(voice_assistant_phase) = ${voice_assist_idle_phase_id};
+    - script.execute: control_leds
+  on_client_disconnected:
+    - voice_assistant.stop:
+    - lambda: id(voice_assistant_phase) = ${voice_assist_not_ready_phase_id};
+    - script.execute: control_leds
+  on_listening:
+    - lambda: id(voice_assistant_phase) = ${voice_assist_waiting_for_command_phase_id};
+    - script.execute: control_leds
+  on_stt_vad_start:
+    - lambda: id(voice_assistant_phase) = ${voice_assist_listening_for_command_phase_id};
+    - script.execute: control_leds
+  on_stt_vad_end:
+    - lambda: id(voice_assistant_phase) = ${voice_assist_thinking_phase_id};
+    - script.execute: control_leds
+  on_intent_progress:
+    - if:
+        condition:
+          lambda: 'return !x.empty();'
+        then:
+          - lambda: id(voice_assistant_phase) = ${voice_assist_replying_phase_id};
+          - script.execute: control_leds
+  on_tts_start:
+    - if:
+        condition:
+          lambda: 'return id(voice_assistant_phase) != ${voice_assist_replying_phase_id};'
+        then:
+          - lambda: id(voice_assistant_phase) = ${voice_assist_replying_phase_id};
+          - script.execute: control_leds
+  on_end:
+    - lambda: id(voice_assistant_phase) = ${voice_assist_idle_phase_id};
+    - script.execute: control_ledsscript:
+  - id: control_leds_voice_assistant_listening_for_command_phase
+    then:
+      - light.turn_on:
+          id: voice_assistant_leds
+          brightness: 35%
+          red: 0%
+          green: 0%
+          blue: 100%
+          effect: "Listening For Command"
+
+  - id: control_leds_voice_assistant_thinking_phase
+    then:
+      - light.turn_on:
+          id: voice_assistant_leds
+          brightness: 50%
+          red: 0%
+          green: 50%
+          blue: 0%
+          effect: "Thinking"
+
+  - id: control_leds_voice_assistant_replying_phase
+    then:
+      - light.turn_on:
+          id: voice_assistant_leds
+          brightness: 40%
+          red: 0%
+          green: 100%
+          blue: 0%
+          effect: "Replying"
+
+  - id: control_leds_voice_assistant_idle_phase
+    then:
+      - light.turn_off: voice_assistant_leds
+
+
 esp32:
   board: esp32-s3-devkitc-1
   cpu_frequency: 240MHz
