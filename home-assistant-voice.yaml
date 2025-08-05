@@ -116,11 +116,19 @@ voice_assistant:
         then:
           - lambda: id(voice_assistant_phase) = ${voice_assist_replying_phase_id};
           - script.execute: control_leds
+  # KORREKT
+# ... (am Ende der voice_assistant Sektion)
   on_end:
     - lambda: id(voice_assistant_phase) = ${voice_assist_idle_phase_id};
-    - script.execute: control_ledsscript:
+    - script.execute: control_leds
+
+# Die "voice_assistant" Sektion ist hier zu Ende.
+# Nun beginnt eine neue "script" Sektion mit der korrekten Einrückung.
+script:
   - id: control_leds_voice_assistant_listening_for_command_phase
     then:
+# ... (der Rest deiner Skripte)
+
       - light.turn_on:
           id: voice_assistant_leds
           brightness: 35%
